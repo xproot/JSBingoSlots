@@ -3,6 +3,7 @@
 /* @Contact: spybob888 at aol dot com */
 /* @Modified: 10:35 AM Saturday, September 04, 2021 */
 
+stopReplay = false;
 PlayingReplay = false;
 
 function GameAction(type, data) {
@@ -241,6 +242,7 @@ function checkMatch(col, row) {
 		mPlay("filltile_snd");
 		document.getElementById(boardIDs[col][row]).style.backgroundImage = "url('./img/coveredtile.gif')";
 		document.getElementById(boardIDs[col][row]).innerHTML = "";
+		addReplayEvent("boardHit", [col, row]);
 		if (activeJokerArray[col] == 1) {
 			document.getElementById("S" + (col + 1)).style.backgroundImage = "url('./img/usedjokerslot.gif')";
 		}
@@ -250,7 +252,6 @@ function checkMatch(col, row) {
 		unmatchedcols[col] = 0;
 		csmb = -1;
 		updateSpinStatus();
-		addReplayEvent("boardHit", [col, row]);
 
 
 	} else {
@@ -268,6 +269,7 @@ function resetJokerArray() {
 function scoring(col, row) {
 
 	/* This function sucks shit. */
+	// It really does -xproot
 	score += 200;
 
 	totals[0] = boardArray[0][0] + boardArray[0][1] + boardArray[0][2] + boardArray[0][3] + boardArray[0][4]
@@ -289,6 +291,15 @@ function scoring(col, row) {
 			slingos[i] = -1;
 			slingoexists = 1;
 			document.getElementById("slingo" + (i + 1)).style.display = "block";
+
+			if (i > 0 && i < 6) {
+				addReplayEvent("slingo", ["vertical", i]);
+			} else if (i > 5 && i < 11) {
+				addReplayEvent("slingo", ["horizontal", i-5]);
+			} else {
+				addReplayEvent("slingo", ["diagonal", i-10]);
+			}
+
 			setTimeout(function () {
 				mPlay("slingo_snd");
 				score += 1000;
@@ -702,9 +713,9 @@ function toggleRules() {
 }
 
 function replayGame(replayStorage) {
+	PlayingReplay = true;
 	document.getElementById("gameover").style.display = "none";
 	gameReset();
-	PlayingReplay = true;
 	if (replayStorage.length > 0) {
 		setTimeout(replayGameIteration(replayStorage, 0), 1000);
 	}
@@ -713,7 +724,7 @@ function replayGame(replayStorage) {
 function replayGameIteration(replayStorage, iteration, step) {
 	var nextIterationTimeout = 100;
 	console.log("Event " + iteration + ": (" + replayStorage[iteration].ActionType + ", " + replayStorage[iteration].ActionData + ")");
-	if (replayStorage[iteration].isAction) {
+	if (replayStorage[iteration].isAction && !stopReplay) {
 		switch (replayStorage[iteration].ActionType) {
 			case "newBoard":
 				boardArray = recreateArray(replayStorage[iteration].ActionData);
@@ -940,6 +951,43 @@ function replayGameIteration(replayStorage, iteration, step) {
 				}
 				break;
 
+			case "slingo":
+				nextIterationTimeout = 1;
+				var slingoTriggered = 0;
+				switch (replayStorage[iteration].ActionData[0]) {
+					case "horizontal":
+						slingoTriggered = replayStorage[iteration].ActionData[1]+6;
+						break;
+					
+					case "vertical":
+						slingoTriggered = replayStorage[iteration].ActionData[1]+1;
+						break;
+
+					case "diagonal":
+						slingoTriggered = replayStorage[iteration].ActionData[1]+11;
+						break;
+
+					default:
+						console.warn("Invalid ActionData for slingo found: " + replayStorage[iteration].ActionData);
+						break;
+				}
+				if (slingoTriggered > 0) {
+					nextIterationTimeout = 1000;
+					if (
+						!step &&
+						iteration < replayStorage.length - 1 &&
+						replayStorage[iteration + 1].ActionType == "slingo"
+					) {
+						nextIterationTimeout = 1;
+					}
+					mPlay("slingo_snd");
+					document.getElementById("slingo" + slingoTriggered).style.display = "block";
+					setTimeout(function() {
+						document.getElementById("slingo" + slingoTriggered).style.display = "none";
+					}, 1000);
+				}
+				break;
+
 			default:
 				mPlay("invalid_snd");
 				console.warn("Unknown ActionType found: " + replayStorage[iteration].ActionType);
@@ -947,10 +995,11 @@ function replayGameIteration(replayStorage, iteration, step) {
 		}
 	}
     //nextIterationTimeout = 1;
-	if (iteration < replayStorage.length - 1 && !step) {
+	if (iteration < replayStorage.length - 1 && !step && !stopReplay) {
 		setTimeout(function() { replayGameIteration(replayStorage, iteration+1) }, nextIterationTimeout);
 	} else {
 		PlayingReplay = false;
+		stopReplay = false;
 		console.info("Replay finished.");
 	}
 }
