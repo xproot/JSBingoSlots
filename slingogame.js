@@ -11,11 +11,6 @@ function GameAction(type, data) {
     this.ActionData = data;
 }
 
-function XandY(x, y) {
-	this.x = x;
-	this.y = y;
-}
-
 var actionArray = new Array();
 
 var boardArray = new Array();
@@ -106,7 +101,7 @@ function takeSpin() {
 							document.getElementById("S" + (i + 1)).innerHTML = "";
 							document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/jokerslot.gif')";
 							activeJokerArray[i] = 1;
-							addReplayEvent('newSlot', new XandY(i, 'joker'));
+							addReplayEvent('newSlot', [i, 'joker']);
 						} /* Devils, Cherubs, Coins, Free Spins */ else if (slotArray[i] < min_nums[i]) {
 							csmb = generateNum(0, 6);
 							if (csmb == 0 && num_devils < max_devils && active_devil != 1) {
@@ -117,7 +112,7 @@ function takeSpin() {
 									document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
 									score += 1000;
 									flashSlotAndScore(i+1); //?
-									addReplayEvent('newSlot', new XandY(i, 'coin'));
+									addReplayEvent('newSlot', [i, 'coin']);
 								} else {
 									mPlay("slot" + (i + 1) + "_snd");
 									document.getElementById("S" + (i + 1)).innerHTML = "";
@@ -137,7 +132,7 @@ function takeSpin() {
 										}, 2500)
 
 									}, 1400)
-									addReplayEvent('newSlot', new XandY(i, 'devil'));
+									addReplayEvent('newSlot', [i, 'devil']);
 								}
 							} else if (csmb == 1 && num_devils < max_devils && active_devil != 1) {
 
@@ -148,7 +143,7 @@ function takeSpin() {
 									document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
 									score += 1000;
 									flashSlotAndScore(i+1); ///?
-									addReplayEvent('newSlot', new XandY(i, 'coin'));
+									addReplayEvent('newSlot', [i, 'coin']);
 								} else {
 
 									mPlay("slot" + (i + 1) + "_snd");
@@ -175,7 +170,7 @@ function takeSpin() {
 										}, 2500)
 
 									}, 1400)
-									addReplayEvent('newSlot', new XandY(i, 'csmb'));
+									addReplayEvent('newSlot', [i, 'csmb']);
 								}
 
 							} else if (csmb > 1 && csmb < 5) {
@@ -185,7 +180,7 @@ function takeSpin() {
 								score += 1000;
 								flashSlotAndScore(i+1); ////?
 								mPlay("coin");
-								addReplayEvent('newSlot', new XandY(i, 'coin'));
+								addReplayEvent('newSlot', [i, 'coin']);
 							} else if (csmb > 4) {
 								mPlay("slot" + (i + 1) + "_snd");
 								document.getElementById("S" + (i + 1)).innerHTML = "";
@@ -193,20 +188,20 @@ function takeSpin() {
 								freespins += 1
 								flashSlotAndFreeSpins(i+1); /////?????
 								mPlay("freespin_snd");
-								addReplayEvent('newSlot', new XandY(i, 'freespin'));
+								addReplayEvent('newSlot', [i, 'freespin']);
 							} else if (num_devils >= max_devils) {
 								csmb = -1;
 								slotArray[i] = generateNum(min_nums[i], max_nums[i]);
 								mPlay("slot" + (i + 1) + "_snd");
 								document.getElementById("S" + (i + 1)).innerHTML = slotArray[i];
-								addReplayEvent('newSlot', new XandY(i, slotArray[i]));
+								addReplayEvent('newSlot', i, [slotArray[i]]);
 							}
 
 
 						} else {
 							mPlay("slot" + (i + 1) + "_snd");
 							document.getElementById("S" + (i + 1)).innerHTML = slotArray[i];
-							addReplayEvent('newSlot', new XandY(i, slotArray[i]));
+							addReplayEvent('newSlot', [i, slotArray[i]]);
 
 						}
 						/* check to see if matches exist in each column */
@@ -255,7 +250,7 @@ function checkMatch(col, row) {
 		unmatchedcols[col] = 0;
 		csmb = -1;
 		updateSpinStatus();
-		addReplayEvent("boardHit", new XandY(col, row));
+		addReplayEvent("boardHit", [col, row]);
 
 
 	} else {
@@ -663,7 +658,7 @@ function flashFreeSpins(delay = 1000) {
 	setTimeout(() => { 
 		document.getElementById("freespindisplay").removeAttribute("scoreoutline");
 	}, delay);
-	addReplayEvent("fpUpdate", freespins);
+	addReplayEvent("fsUpdate", freespins);
 }
 
 function flashCardSlot(cardXNumber, cardYNumber, delay = 500) {
@@ -734,45 +729,45 @@ function replayGameIteration(replayStorage, iteration, step) {
 				break;
 
 			case "newSlot":
-				if (isNaN(replayStorage[iteration].ActionData.y)) {
-					document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).innerHTML = "";
-					switch (replayStorage[iteration].ActionData.y) {
+				if (isNaN(replayStorage[iteration].ActionData[1])) {
+					document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = "";
+					switch (replayStorage[iteration].ActionData[1]) {
 						case "joker":
-							activeJokerArray[replayStorage[iteration].ActionData.x] = 1;
-							document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).style.backgroundImage = "url('./img/jokerslot.gif')";
+							activeJokerArray[replayStorage[iteration].ActionData[0]] = 1;
+							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/jokerslot.gif')";
 							break;
 
 						case "devil":
-							document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
+							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
 							break;
 
 						case "csmb":
-							document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
+							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
 							break;
 
 						case "coin":
-							document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
+							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
 							break;
 
 						case "freespin":
-							document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).style.backgroundImage = "url('./img/freespinslot.gif')";
+							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/freespinslot.gif')";
 							break;
 
 						default:
-							document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).innerHTML = replayStorage[iteration].ActionData.y;
+							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = replayStorage[iteration].ActionData[1];
 							break;
 					}
 				} else {
-					document.getElementById("S" + (replayStorage[iteration].ActionData.x + 1)).innerHTML = replayStorage[iteration].ActionData.y;
+					document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = replayStorage[iteration].ActionData[1];
 				}
-				flashSlot(replayStorage[iteration].ActionData.x + 1, 100);
-				mPlay("slot" + (replayStorage[iteration].ActionData.x + 1) + "_snd");
+				flashSlot(replayStorage[iteration].ActionData[0] + 1, 100);
+				mPlay("slot" + (replayStorage[iteration].ActionData[0] + 1) + "_snd");
 				nextIterationTimeout = 300;
 				break;
 
 			case "boardHit":
-				var col = replayStorage[iteration].ActionData.x;
-				var row = replayStorage[iteration].ActionData.y;
+				var col = replayStorage[iteration].ActionData[0];
+				var row = replayStorage[iteration].ActionData[1];
 				document.getElementById(boardIDs[col][row]).style.backgroundImage = "url('./img/coveredtile.gif')";
 				document.getElementById(boardIDs[col][row]).innerHTML = "";
 				if (activeJokerArray[col] == 1) {
@@ -822,7 +817,7 @@ function replayGameIteration(replayStorage, iteration, step) {
 				nextIterationTimeout = 300;
 				break;
 
-			case "fpUpdate":
+			case "fsUpdate":
 				freespins = replayStorage[iteration].ActionData;
 				document.getElementById("freespindisplay").innerHTML = freespins;
 				flashFreeSpins();
