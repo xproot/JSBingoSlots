@@ -90,6 +90,7 @@ function takeSpin() {
 	active_devil = 0;
 	if (spin < 20) {
 		incrementSpin();
+		addReplayEvent("takeSpin", spin);
 		for (var i = 0; i < 5; i++) {
 			(function (i) {
 				setTimeout(function () {
@@ -101,23 +102,24 @@ function takeSpin() {
 						slotArray[i] = generateNum(min_nums[i] - 1, max_nums[i] + 4);
 						/* Check for Jokers*/
 						if (slotArray[i] > max_nums[i]) {
+							addReplayEvent('newSlot', [i, 'joker']);
 							mPlay("slot" + (i + 1) + "_snd");
 							document.getElementById("S" + (i + 1)).innerHTML = "";
 							document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/jokerslot.gif')";
 							activeJokerArray[i] = 1;
-							addReplayEvent('newSlot', [i, 'joker']);
 						} /* Devils, Cherubs, Coins, Free Spins */ else if (slotArray[i] < min_nums[i]) {
 							csmb = generateNum(0, 6);
 							if (csmb == 0 && num_devils < max_devils && active_devil != 1) {
 								if (spin == 1) { /* We can't have a dd on the first spin - give them a coin instead */
+									addReplayEvent('newSlot', [i, 'coin']);
 									mPlay("slot" + (i + 1) + "_snd");
 									num_devils++;
 									document.getElementById("S" + (i + 1)).innerHTML = "";
 									document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
 									score += 1000;
 									flashSlotAndScore(i+1); //?
-									addReplayEvent('newSlot', [i, 'coin']);
 								} else {
+									addReplayEvent('newSlot', [i, 'devil']);
 									mPlay("slot" + (i + 1) + "_snd");
 									document.getElementById("S" + (i + 1)).innerHTML = "";
 									document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
@@ -136,20 +138,19 @@ function takeSpin() {
 										}, 2500)
 
 									}, 1400)
-									addReplayEvent('newSlot', [i, 'devil']);
 								}
 							} else if (csmb == 1 && num_devils < max_devils && active_devil != 1) {
 
 								if (spin == 1) { /* We can't have a csmb on the first spin - give them a coin instead */
+									addReplayEvent('newSlot', [i, 'coin']);
 									mPlay("slot" + (i + 1) + "_snd");
 									num_devils++;
 									document.getElementById("S" + (i + 1)).innerHTML = "";
 									document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
 									score += 1000;
 									flashSlotAndScore(i+1); ///?
-									addReplayEvent('newSlot', [i, 'coin']);
 								} else {
-
+									addReplayEvent('newSlot', [i, 'csmb']);
 									mPlay("slot" + (i + 1) + "_snd");
 									num_devils++;
 									active_devil++;
@@ -174,38 +175,37 @@ function takeSpin() {
 										}, 2500)
 
 									}, 1400)
-									addReplayEvent('newSlot', [i, 'csmb']);
 								}
 
 							} else if (csmb > 1 && csmb < 5) {
+								addReplayEvent('newSlot', [i, 'coin']);
 								mPlay("slot" + (i + 1) + "_snd");
 								document.getElementById("S" + (i + 1)).innerHTML = "";
 								document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
 								score += 1000;
 								flashSlotAndScore(i+1); ////?
 								mPlay("coin");
-								addReplayEvent('newSlot', [i, 'coin']);
 							} else if (csmb > 4) {
+								addReplayEvent('newSlot', [i, 'freespin']);
 								mPlay("slot" + (i + 1) + "_snd");
 								document.getElementById("S" + (i + 1)).innerHTML = "";
 								document.getElementById("S" + (i + 1)).style.backgroundImage = "url('./img/freespinslot.gif')";
 								freespins += 1
 								flashSlotAndFreeSpins(i+1); /////?????
 								mPlay("freespin_snd");
-								addReplayEvent('newSlot', [i, 'freespin']);
 							} else if (num_devils >= max_devils) {
+								addReplayEvent('newSlot', [i, slotArray[i]]);
 								csmb = -1;
 								slotArray[i] = generateNum(min_nums[i], max_nums[i]);
 								mPlay("slot" + (i + 1) + "_snd");
 								document.getElementById("S" + (i + 1)).innerHTML = slotArray[i];
-								addReplayEvent('newSlot', i, [slotArray[i]]);
 							}
 
 
 						} else {
+							addReplayEvent('newSlot', [i, slotArray[i]]);
 							mPlay("slot" + (i + 1) + "_snd");
 							document.getElementById("S" + (i + 1)).innerHTML = slotArray[i];
-							addReplayEvent('newSlot', [i, slotArray[i]]);
 
 						}
 						/* check to see if matches exist in each column */
@@ -227,7 +227,6 @@ function takeSpin() {
 		setTimeout(updateSpinStatus, 1500);
 	}
 	document.getElementById("progressbar").style.width = ((spin / 20) * 231);
-	addReplayEvent("takeSpin", spin);
 }
 
 function incrementSpin() {
@@ -243,10 +242,10 @@ function generateNum(min, max) {
 
 function checkMatch(col, row) {
 	if ((boardArray[col][row] === slotArray[col] || activeJokerArray[col] == 1) && boardArray[col][row] != 0 && !PlayingReplay) {
+		addReplayEvent("boardHit", [col, row]);
 		mPlay("filltile_snd");
 		document.getElementById(boardIDs[col][row]).style.backgroundImage = "url('./img/coveredtile.gif')";
 		document.getElementById(boardIDs[col][row]).innerHTML = "";
-		addReplayEvent("boardHit", [col, row]);
 		if (activeJokerArray[col] == 1) {
 			document.getElementById("S" + (col + 1)).style.backgroundImage = "url('./img/usedjokerslot.gif')";
 		}
@@ -412,11 +411,11 @@ function startGame() {
 }
 
 function clearSlots() {
+	addReplayEvent("clearSlot", -1);
 	for (i = 0; i < 5; i++) {
 		document.getElementById("S" + (i + 1)).innerHTML = "";
 		document.getElementById("S" + (i + 1)).style.backgroundImage = "";
 	}
-	addReplayEvent("clearSlot", -1);
 }
 
 function endGame(mode) {
