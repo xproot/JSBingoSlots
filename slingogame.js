@@ -226,6 +226,7 @@ function takeSpin() {
 		}
 		setTimeout(updateSpinStatus, 1500);
 	}
+	document.getElementById("progressbar").style.width = ((spin / 20) * 231);
 	addReplayEvent("takeSpin", spin);
 }
 
@@ -419,6 +420,9 @@ function clearSlots() {
 }
 
 function endGame(mode) {
+	if (!PlayingReplay) {
+		document.getElementById("progressbar").style.width = 231;
+	}
 	/* Full Card */
 	if (mode == 1) {
 		setTimeout(function () {
