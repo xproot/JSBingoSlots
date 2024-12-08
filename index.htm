@@ -66,12 +66,12 @@
 <div ID="spindisplay">0</div>
 <div ID="freespindisplay">0</div>
 <div ID="bonuspntdisplay">88,888</div>
-<div ID="replaydisplay"><div id="progressbar"><span id="replayprogress">0</span></div><br><br>
-                        <button id="replayplay" onclick="replayGame(actionArray);">Play</button>
-                        <button id="replaystop" onclick="triggerReplayStop();">Stop</button>
-                        <button id="replaysave" onclick="DownloadReplay();">Save</button>
-                        <button id="replayload" onclick="UploadReplay();">Load</button>
-                        <button id="replayffwd" onclick="ToggleReplaySpeed();">FFWD</button>
+<div ID="replaydisplay"><div id="progressbar"><span id="replayprogress">0</span></div>
+                        <div id="replayplay" onclick="replayGame(actionArray);"></div>
+                        <div id="replaystop" onclick="triggerReplayStop();"></div>
+                        <div id="replayffwd" onclick="ToggleReplaySpeed();"></div>
+                        <div id="replayload" onclick="UploadReplay();"></div>
+                        <div id="replaysave" onclick="DownloadReplay();"></div>
                         <input type="file" id="fileInput" style="display:none">
 </div>
 

@@ -723,7 +723,7 @@ function replayGame(replayStorage) {
 		document.getElementById("startgamebtn").style.display = "none";
 		document.getElementById("startspinbtn").style.display = "none";
 		document.getElementById("gameover").style.display = "none";
-		document.getElementById("replayplay").innerHTML = "Pause";
+		document.getElementById("replayplay").setAttribute("pause", "");
 		gameReset();
 		setTimeout(replayGameIteration(replayStorage, 0), 1000);
 		mPlay("lever");
@@ -1020,16 +1020,18 @@ function replayGameIteration(replayStorage, iteration, step) {
 		setTimeout(function() { replayGameIteration(replayStorage, iteration+1) }, nextIterationTimeout);
 	} else if (PausedReplay) {
 		savedIteration = iteration;
-		document.getElementById("replayplay").innerHTML = "Play";
+		document.getElementById("replayplay").removeAttribute("pause");
 	} else {
 		document.getElementById("progressbar").style.width = 231;
+		ReplayFastForward = false;
 		PlayingReplay = false;
 		PausedReplay = false;
 		stopReplay = false;
 		savedIteration = 0;
 		endGame(2);
+		document.getElementById("replayffwd").removeAttribute("norm");
 		document.getElementById("startgamebtn").style.display = "block";
-		document.getElementById("replayplay").innerHTML = "Play";
+		document.getElementById("replayplay").removeAttribute("pause");
 		console.info("Replay finished.");
 	}
 }
@@ -1067,10 +1069,10 @@ function triggerReplayPause() {
 		if (savedIteration > 0) {
 			replayGameIteration(actionArray, savedIteration);
 		}
-		document.getElementById("replayplay").innerHTML = "Pause";
+		document.getElementById("replayplay").setAttribute("pause", "");
 	} else {
 		PausedReplay = true;
-		document.getElementById("replayplay").innerHTML = "Play";
+		document.getElementById("replayplay").removeAttribute("pause");
 	}
 }
 
@@ -1120,9 +1122,9 @@ function ToggleReplaySpeed() {
 	if (PlayingReplay) {
 		ReplayFastForward = !ReplayFastForward;
 		if (ReplayFastForward) {
-			document.getElementById("replayffwd").innerHTML = "NORM";
+			document.getElementById("replayffwd").setAttribute("norm", "");
 		} else {
-			document.getElementById("replayffwd").innerHTML = "FFWD";
+			document.getElementById("replayffwd").removeAttribute("norm");
 		}
 	} else {
 		mPlay("invalid_snd");

@@ -145,8 +145,53 @@
   	left: 11px;
   	width: 231px;
   	height: 27px;
-  	background-color: blue;
+	color:white;
+  	background-color: #A5A56B;
 	text-align: center;
+}
+
+#replayplay, #replaystop, #replaysave, #replayload, #replayffwd{
+	position:absolute;
+	width: 20px;
+	height: 20px;
+}
+
+#replayplay{
+	background-image:url('./img/replay_play.png');
+	top: 42px;
+	left: 15px;
+}
+
+#replayplay[pause]{
+	background-image:url('./img/replay_pause.png');
+}
+
+#replaystop {
+	background-image:url('./img/replay_stop.png');
+	top: 42px;
+	left: 65px;
+}
+
+#replayffwd {
+	background-image:url('./img/replay_ffwd.png');
+	top: 42px;
+	left: 115px;
+}
+
+#replayffwd[norm] {
+	background-image:url('./img/replay_norm.png');
+}
+
+#replayload {
+	background-image:url('./img/replay_load.png');
+	top: 42px;
+	left: 165px;
+}
+
+#replaysave {
+	background-image:url('./img/replay_save.png');
+	top: 42px;
+	left: 215px;
 }
 
 #bonuspntdisplay{
