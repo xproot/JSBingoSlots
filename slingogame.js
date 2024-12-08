@@ -1032,7 +1032,14 @@ function replayGameIteration(replayStorage, iteration, step) {
 		PausedReplay = false;
 		stopReplay = false;
 		savedIteration = 0;
-		if (replayStorage[iteration].ActionType != "gameEnd") {endGame(2);}
+		if (document.getElementById("fullcard").style.display != "none" || document.getElementById("fullcard").style.display != "gameover") {endGame(2);}
+		document.getElementById("devil").style.display = "none";
+		document.getElementById("csmb").style.display = "none";
+		document.getElementById("devil").style.display = "none";
+		document.getElementById("finalspins4").style.display = "none";
+		document.getElementById("finalspins3").style.display = "none";
+		document.getElementById("finalspins2").style.display = "none";
+		document.getElementById("finalspins1").style.display = "none";
 		document.getElementById("replayffwd").removeAttribute("norm");
 		document.getElementById("startgamebtn").style.display = "block";
 		document.getElementById("replayplay").removeAttribute("pause");
