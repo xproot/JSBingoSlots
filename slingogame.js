@@ -5,6 +5,9 @@
 
 stopReplay = false;
 PlayingReplay = false;
+PausedReplay = false;
+ReplayFastForward = false;
+savedIteration = 0;
 
 function GameAction(type, data) {
     this.isAction = true;
@@ -44,7 +47,7 @@ var active_devil = 0;
 var csmb = 0;
 var spin = 0;
 var score = 0;
-var isgameover = 0;
+var isgameover = true;
 var isspinactive = 0;
 var domatchesexist = 0;
 var slingoexists = 0;
@@ -238,7 +241,7 @@ function generateNum(min, max) {
 }
 
 function checkMatch(col, row) {
-	if ((boardArray[col][row] === slotArray[col] || activeJokerArray[col] == 1) && boardArray[col][row] != 0) {
+	if ((boardArray[col][row] === slotArray[col] || activeJokerArray[col] == 1) && boardArray[col][row] != 0 && !PlayingReplay) {
 		mPlay("filltile_snd");
 		document.getElementById(boardIDs[col][row]).style.backgroundImage = "url('./img/coveredtile.gif')";
 		document.getElementById(boardIDs[col][row]).innerHTML = "";
@@ -252,8 +255,6 @@ function checkMatch(col, row) {
 		unmatchedcols[col] = 0;
 		csmb = -1;
 		updateSpinStatus();
-
-
 	} else {
 		mPlay("invalid_snd");
 	}
@@ -400,6 +401,8 @@ function updateSpinStatus() {
 }
 
 function startGame() {
+	actionArray = new Array();
+	isgameover = false;
 	newBoard();
 	mPlay("start_snd");
 	document.getElementById("startgamebtn").style.display = "none";
@@ -473,7 +476,7 @@ function gameReset() {
 	csmb = 0;
 	spin = 0;
 	score = 0;
-	isgameover = 0;
+	isgameover = true;
 	isspinactive = 0;
 	domatchesexist = 0;
 	slingoexists = 0;
@@ -694,7 +697,7 @@ function updateScoreDisplay(interval = 800, delay = 500) {
 }
 
 function tryRestartGame() {
-	if (valid) {
+	if (!isgameover) {
 		endGame(2);
 	} else {
 		mPlay("invalid_snd");
@@ -713,16 +716,28 @@ function toggleRules() {
 }
 
 function replayGame(replayStorage) {
-	PlayingReplay = true;
-	document.getElementById("gameover").style.display = "none";
-	gameReset();
-	if (replayStorage.length > 0) {
+	if (isgameover && !PlayingReplay && replayStorage.length > 0) {
+		stopReplay = false;
+		PlayingReplay = true;
+		PausedReplay = false;
+		document.getElementById("startgamebtn").style.display = "none";
+		document.getElementById("startspinbtn").style.display = "none";
+		document.getElementById("gameover").style.display = "none";
+		document.getElementById("replayplay").innerHTML = "Pause";
+		gameReset();
 		setTimeout(replayGameIteration(replayStorage, 0), 1000);
+		mPlay("lever");
+	} else if (PlayingReplay) {
+		triggerReplayPause();
+		mPlay("lever");
+	} else {
+		mPlay("invalid_snd");
 	}
 }
 
 function replayGameIteration(replayStorage, iteration, step) {
 	var nextIterationTimeout = 100;
+	document.getElementById("replayprogress").innerHTML = iteration + "/" + actionArray.length;
 	console.log("Event " + iteration + ": (" + replayStorage[iteration].ActionType + ", " + replayStorage[iteration].ActionData + ")");
 	if (replayStorage[iteration].isAction && !stopReplay) {
 		switch (replayStorage[iteration].ActionType) {
@@ -758,14 +773,17 @@ function replayGameIteration(replayStorage, iteration, step) {
 
 						case "coin":
 							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
+							mPlay("coin");
 							break;
 
 						case "freespin":
 							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/freespinslot.gif')";
+							mPlay("freespin_snd");
 							break;
 
 						default:
 							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = replayStorage[iteration].ActionData[1];
+							mPlay("invalid_snd");
 							break;
 					}
 				} else {
@@ -994,12 +1012,24 @@ function replayGameIteration(replayStorage, iteration, step) {
 				break;
 		}
 	}
-    //nextIterationTimeout = 1;
-	if (iteration < replayStorage.length - 1 && !step && !stopReplay) {
+    if (ReplayFastForward && nextIterationTimeout > 50) {
+		nextIterationTimeout = 50;
+	}
+	if (iteration < replayStorage.length - 1 && !step && !stopReplay && !PausedReplay) {
+		document.getElementById("progressbar").style.width = ((iteration / replayStorage.length) * 231);
 		setTimeout(function() { replayGameIteration(replayStorage, iteration+1) }, nextIterationTimeout);
+	} else if (PausedReplay) {
+		savedIteration = iteration;
+		document.getElementById("replayplay").innerHTML = "Play";
 	} else {
+		document.getElementById("progressbar").style.width = 231;
 		PlayingReplay = false;
+		PausedReplay = false;
 		stopReplay = false;
+		savedIteration = 0;
+		endGame(2);
+		document.getElementById("startgamebtn").style.display = "block";
+		document.getElementById("replayplay").innerHTML = "Play";
 		console.info("Replay finished.");
 	}
 }
@@ -1025,7 +1055,76 @@ function recreateArray(arr) {
 }
 
 function addReplayEvent(type, data){
-	if (!PlayingReplay) {
+	if (!PlayingReplay && !isgameover) {
 		actionArray.push(new GameAction(type, data));
+		document.getElementById("replayprogress").innerHTML = actionArray.length;
+	}
+}
+
+function triggerReplayPause() {
+	if (PausedReplay) {
+		PausedReplay = false;
+		if (savedIteration > 0) {
+			replayGameIteration(actionArray, savedIteration);
+		}
+		document.getElementById("replayplay").innerHTML = "Pause";
+	} else {
+		PausedReplay = true;
+		document.getElementById("replayplay").innerHTML = "Play";
+	}
+}
+
+function triggerReplayStop() {
+	if (PausedReplay) {
+		mPlay("click");
+		PausedReplay = false;
+		stopReplay = true;
+		replayGameIteration(actionArray, savedIteration);
+	} else if (PlayingReplay) {
+		mPlay("click");
+		stopReplay = true;
+	} else {
+		mPlay("invalid_snd");
+	}
+}
+
+function DownloadReplay() {
+	if (actionArray.length > 0) {
+		//https://stackoverflow.com/a/18197511/
+		var pom = document.createElement('a');
+		pom.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(actionArray)));
+		pom.setAttribute('download', "slingo_replay.json");
+	
+		if (document.createEvent) {
+			var event = document.createEvent('MouseEvents');
+			event.initEvent('click', true, true);
+			pom.dispatchEvent(event);
+		}
+		else {
+			pom.click();
+		}
+	} else {
+		mPlay("invalid_snd");
+	}
+}
+
+function UploadReplay() {
+	if (!PlayingReplay && isgameover) {
+		document.getElementById("fileInput").click();
+	} else {
+		mPlay("invalid_snd");
+	}
+}
+
+function ToggleReplaySpeed() {
+	if (PlayingReplay) {
+		ReplayFastForward = !ReplayFastForward;
+		if (ReplayFastForward) {
+			document.getElementById("replayffwd").innerHTML = "NORM";
+		} else {
+			document.getElementById("replayffwd").innerHTML = "FFWD";
+		}
+	} else {
+		mPlay("invalid_snd");
 	}
 }

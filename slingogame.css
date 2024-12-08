@@ -125,6 +125,30 @@
 	font-size:22px;
 }
 
+#replaydisplay{
+	position:absolute;
+	top:25px;
+	left:220px;
+	width:256px;
+	height:71px;
+	color:white;
+	text-align:left;
+	font-family:'Times New Roman', Times, serif;
+	font-style:italic;
+	font-size:22px;
+	background-image:url('./img/replaybg.png');
+}
+
+#replaydisplay #progressbar{
+	position: absolute;
+  	top: 11px;
+  	left: 11px;
+  	width: 231px;
+  	height: 27px;
+  	background-color: blue;
+	text-align: center;
+}
+
 #bonuspntdisplay{
 	position:absolute;
 	top: 305px;

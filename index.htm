@@ -66,8 +66,17 @@
 <div ID="spindisplay">0</div>
 <div ID="freespindisplay">0</div>
 <div ID="bonuspntdisplay">88,888</div>
+<div ID="replaydisplay"><div id="progressbar"><span id="replayprogress">0</span></div><br><br>
+                        <button id="replayplay" onclick="replayGame(actionArray);">Play</button>
+                        <button id="replaystop" onclick="triggerReplayStop();">Stop</button>
+                        <button id="replaysave" onclick="DownloadReplay();">Save</button>
+                        <button id="replayload" onclick="UploadReplay();">Load</button>
+                        <button id="replayffwd" onclick="ToggleReplaySpeed();">FFWD</button>
+                        <input type="file" id="fileInput" style="display:none">
+</div>
 
 <audio id="click" src="./sounds/click.wav" preload="auto"></audio>
+<audio id="lever" src="./sounds/lever.wav" preload="auto"></audio>
 <audio id="spinclick_snd" src="./sounds/spinclick.wav" preload="auto"></audio>
 <audio id="filltile_snd" src="./sounds/filltile.wav" preload="auto"></audio>
 <audio id="slingo_snd" src="./sounds/slingo2.wav" preload="auto"></audio>
@@ -112,6 +121,22 @@
 <div ID="yesbtn" class="questionelements" onclick="freeSpinAnswer(true);"></div>
 <div ID="nobtn" class="questionelements" onclick="freeSpinAnswer(false);"></div>
 <div ID="bonuspntdisplay"></div>
-
+<script>
+   document.getElementById("fileInput").addEventListener('change', (event) => {
+	var jsonreader = new FileReader();
+  
+	jsonreader.onload = (e) => {
+	  try {
+		actionArray = JSON.parse(e.target.result);
+		document.getElementById("replayprogress").innerHTML = actionArray.length;
+		mPlay("coin");
+	  } catch {
+		mPlay("invalid_snd");
+		document.getElementById("replayprogress").innerHTML = "Load failed";
+	  }
+	};
+	jsonreader.readAsText(event.target.files[0]);
+   });
+</script>
 </body>
 </html>
