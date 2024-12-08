@@ -1033,7 +1033,7 @@ function replayGameIteration(replayStorage, iteration, step) {
 		PausedReplay = false;
 		stopReplay = false;
 		savedIteration = 0;
-		if (document.getElementById("fullcard").style.display != "none" || document.getElementById("fullcard").style.display != "gameover") {endGame(2);}
+		if (document.getElementById("fullcard").style.display == "none" && document.getElementById("gameover").style.display == "none") {endGame(2);}
 		document.getElementById("devil").style.display = "none";
 		document.getElementById("csmb").style.display = "none";
 		document.getElementById("devil").style.display = "none";
