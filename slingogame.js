@@ -1032,7 +1032,7 @@ function replayGameIteration(replayStorage, iteration, step) {
 		PausedReplay = false;
 		stopReplay = false;
 		savedIteration = 0;
-		endGame(2);
+		if (replayStorage[iteration].ActionType != "gameEnd") {endGame(2);}
 		document.getElementById("replayffwd").removeAttribute("norm");
 		document.getElementById("startgamebtn").style.display = "block";
 		document.getElementById("replayplay").removeAttribute("pause");
