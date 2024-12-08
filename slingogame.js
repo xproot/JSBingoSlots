@@ -743,277 +743,279 @@ function replayGameIteration(replayStorage, iteration, step) {
 	document.getElementById("replayprogress").innerHTML = iteration + "/" + actionArray.length;
 	console.log("Event " + iteration + ": (" + replayStorage[iteration].ActionType + ", " + replayStorage[iteration].ActionData + ")");
 	if (replayStorage[iteration].isAction && !stopReplay) {
-		switch (replayStorage[iteration].ActionType) {
-			case "newBoard":
-				boardArray = recreateArray(replayStorage[iteration].ActionData);
-				for (var i = 0; i < 5; i++) {
-					for (var j = 0; j < 5; j++) {
-						document.getElementById(boardIDs[i][j]).innerHTML = boardArray[i][j];
-						flashCardSlot(i, j, 100);
+		try {
+			switch (replayStorage[iteration].ActionType) {
+				case "newBoard":
+					boardArray = recreateArray(replayStorage[iteration].ActionData);
+					for (var i = 0; i < 5; i++) {
+						for (var j = 0; j < 5; j++) {
+							document.getElementById(boardIDs[i][j]).innerHTML = boardArray[i][j];
+							flashCardSlot(i, j, 100);
+						}
 					}
-				}
-				document.getElementById("scoredisplay").innerHTML = 0;
-				mPlay("start_snd");
-				nextIterationTimeout = 1000;
-				break;
+					document.getElementById("scoredisplay").innerHTML = 0;
+					mPlay("start_snd");
+					nextIterationTimeout = 1000;
+					break;
 
-			case "newSlot":
-				if (isNaN(replayStorage[iteration].ActionData[1])) {
-					document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = "";
-					switch (replayStorage[iteration].ActionData[1]) {
-						case "joker":
-							activeJokerArray[replayStorage[iteration].ActionData[0]] = 1;
-							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/jokerslot.gif')";
-							break;
+				case "newSlot":
+					if (isNaN(replayStorage[iteration].ActionData[1])) {
+						document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = "";
+						switch (replayStorage[iteration].ActionData[1]) {
+							case "joker":
+								activeJokerArray[replayStorage[iteration].ActionData[0]] = 1;
+								document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/jokerslot.gif')";
+								break;
 
-						case "devil":
-							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
-							break;
+							case "devil":
+								document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
+								break;
 
-						case "csmb":
-							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
-							break;
+							case "csmb":
+								document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/devilslot.gif')";
+								break;
 
-						case "coin":
-							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
-							mPlay("coin");
-							break;
+							case "coin":
+								document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/coinslot.gif')";
+								mPlay("coin");
+								break;
 
-						case "freespin":
-							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/freespinslot.gif')";
-							mPlay("freespin_snd");
-							break;
+							case "freespin":
+								document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).style.backgroundImage = "url('./img/freespinslot.gif')";
+								mPlay("freespin_snd");
+								break;
 
-						default:
-							document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = replayStorage[iteration].ActionData[1];
-							mPlay("invalid_snd");
-							break;
+							default:
+								document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = replayStorage[iteration].ActionData[1];
+								mPlay("invalid_snd");
+								break;
+						}
+					} else {
+						document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = replayStorage[iteration].ActionData[1];
 					}
-				} else {
-					document.getElementById("S" + (replayStorage[iteration].ActionData[0] + 1)).innerHTML = replayStorage[iteration].ActionData[1];
-				}
-				flashSlot(replayStorage[iteration].ActionData[0] + 1, 100);
-				mPlay("slot" + (replayStorage[iteration].ActionData[0] + 1) + "_snd");
-				nextIterationTimeout = 300;
-				break;
+					flashSlot(replayStorage[iteration].ActionData[0] + 1, 100);
+					mPlay("slot" + (replayStorage[iteration].ActionData[0] + 1) + "_snd");
+					nextIterationTimeout = 300;
+					break;
 
-			case "boardHit":
-				var col = replayStorage[iteration].ActionData[0];
-				var row = replayStorage[iteration].ActionData[1];
-				document.getElementById(boardIDs[col][row]).style.backgroundImage = "url('./img/coveredtile.gif')";
-				document.getElementById(boardIDs[col][row]).innerHTML = "";
-				if (activeJokerArray[col] == 1) {
-					document.getElementById("S" + (col + 1)).style.backgroundImage = "url('./img/usedjokerslot.gif')";
-				}
-				boardArray[col][row] = 0;
-				activeJokerArray[col] = 0;
-				flashSlot(col+1);
-				flashCardSlot(col, row, 100);
-				mPlay("filltile_snd");
-				nextIterationTimeout = 500;
-				break;
+				case "boardHit":
+					var col = replayStorage[iteration].ActionData[0];
+					var row = replayStorage[iteration].ActionData[1];
+					document.getElementById(boardIDs[col][row]).style.backgroundImage = "url('./img/coveredtile.gif')";
+					document.getElementById(boardIDs[col][row]).innerHTML = "";
+					if (activeJokerArray[col] == 1) {
+						document.getElementById("S" + (col + 1)).style.backgroundImage = "url('./img/usedjokerslot.gif')";
+					}
+					boardArray[col][row] = 0;
+					activeJokerArray[col] = 0;
+					flashSlot(col+1);
+					flashCardSlot(col, row, 100);
+					mPlay("filltile_snd");
+					nextIterationTimeout = 500;
+					break;
 
-			case "scoreUpdate":
-				if (replayStorage[iteration].ActionData < score) {
-					mPlay("scorereduce_snd");
-				}
-				score = replayStorage[iteration].ActionData;
-				updateScoreDisplay();
-				nextIterationTimeout = 1;
-				break;
+				case "scoreUpdate":
+					if (replayStorage[iteration].ActionData < score) {
+						mPlay("scorereduce_snd");
+					}
+					score = replayStorage[iteration].ActionData;
+					updateScoreDisplay();
+					nextIterationTimeout = 1;
+					break;
 
-			case "clearSlot":
-				if (replayStorage[iteration].ActionData > -1 && replayStorage[iteration].ActionData < 5) {
-					document.getElementById("S" + (replayStorage[iteration].ActionData + 1)).innerHTML = "";
-					document.getElementById("S" + (replayStorage[iteration].ActionData + 1)).style.backgroundImage = "";
-				} else if (replayStorage[iteration].ActionData == -1) {
-					clearSlots();
-				} else {
-					mPlay("invalid_snd");
-					console.warn("Invalid ActionData for clearSlot found: " + replayStorage[iteration].ActionData);
-				}
-				nextIterationTimeout = 1;
-				break;
+				case "clearSlot":
+					if (replayStorage[iteration].ActionData > -1 && replayStorage[iteration].ActionData < 5) {
+						document.getElementById("S" + (replayStorage[iteration].ActionData + 1)).innerHTML = "";
+						document.getElementById("S" + (replayStorage[iteration].ActionData + 1)).style.backgroundImage = "";
+					} else if (replayStorage[iteration].ActionData == -1) {
+						clearSlots();
+					} else {
+						mPlay("invalid_snd");
+						console.warn("Invalid ActionData for clearSlot found: " + replayStorage[iteration].ActionData);
+					}
+					nextIterationTimeout = 1;
+					break;
 
-			case "newSpin":
-				spin = replayStorage[iteration].ActionData;
-				document.getElementById("spindisplay").innerHTML = spin;
-				mPlay("start_snd");
-				nextIterationTimeout = 600;
-				break;
+				case "newSpin":
+					spin = replayStorage[iteration].ActionData;
+					document.getElementById("spindisplay").innerHTML = spin;
+					mPlay("start_snd");
+					nextIterationTimeout = 600;
+					break;
 
-			case "takeSpin":
-				spin = replayStorage[iteration].ActionData;
-				document.getElementById("spindisplay").innerHTML = spin;
-				mPlay("spinclick_snd");
-				nextIterationTimeout = 300;
-				break;
+				case "takeSpin":
+					spin = replayStorage[iteration].ActionData;
+					document.getElementById("spindisplay").innerHTML = spin;
+					mPlay("spinclick_snd");
+					nextIterationTimeout = 300;
+					break;
 
-			case "fsUpdate":
-				freespins = replayStorage[iteration].ActionData;
-				document.getElementById("freespindisplay").innerHTML = freespins;
-				flashFreeSpins();
-				nextIterationTimeout = 1;
-				break;
+				case "fsUpdate":
+					freespins = replayStorage[iteration].ActionData;
+					document.getElementById("freespindisplay").innerHTML = freespins;
+					flashFreeSpins();
+					nextIterationTimeout = 1;
+					break;
 
-			case "fsQuestion":
-				document.getElementById("freespinq").style.display = "block";
-				document.getElementById("yesbtn").style.display = "block";
-				document.getElementById("nobtn").style.display = "block";
-				setTimeout(function() { 
-					document.getElementById("freespinq").style.display = "none"; 
-					document.getElementById("yesbtn").style.display = "none";
-					document.getElementById("nobtn").style.display = "none";
-				}, 999);
+				case "fsQuestion":
+					document.getElementById("freespinq").style.display = "block";
+					document.getElementById("yesbtn").style.display = "block";
+					document.getElementById("nobtn").style.display = "block";
+					setTimeout(function() { 
+						document.getElementById("freespinq").style.display = "none"; 
+						document.getElementById("yesbtn").style.display = "none";
+						document.getElementById("nobtn").style.display = "none";
+					}, 999);
 
-				if (replayStorage[iteration].ActionData) {
-					document.getElementById("yesbtn").setAttribute("scoreoutline", "");
-					setTimeout(function() { document.getElementById("yesbtn").removeAttribute("scoreoutline"); }, 900);
-				} else {
-					document.getElementById("nobtn").setAttribute("scoreoutline", "");
-					setTimeout(function() { document.getElementById("nobtn").removeAttribute("scoreoutline"); }, 900);
-				}
-				
-				nextIterationTimeout = 1000;
-				break;
+					if (replayStorage[iteration].ActionData) {
+						document.getElementById("yesbtn").setAttribute("scoreoutline", "");
+						setTimeout(function() { document.getElementById("yesbtn").removeAttribute("scoreoutline"); }, 900);
+					} else {
+						document.getElementById("nobtn").setAttribute("scoreoutline", "");
+						setTimeout(function() { document.getElementById("nobtn").removeAttribute("scoreoutline"); }, 900);
+					}
+					
+					nextIterationTimeout = 1000;
+					break;
 
-			case "gameEnd":
-				bonus = replayStorage[iteration].ActionData;
+				case "gameEnd":
+					bonus = replayStorage[iteration].ActionData;
 
-				if (replayStorage[iteration].ActionData == 0) {
-					mPlay("gameover_snd");
-					document.getElementById("gameover").style.display = "block";
-					document.getElementById("startgamebtn").style.display = "block";
-					gameReset();
-				} else {
-					document.getElementById("fullcard").style.display = "block";
-					document.getElementById("bonuspntdisplay").style.display = "block";
-					document.getElementById("bonuspntdisplay").innerHTML = bonus;
-					mPlay("fc_snd");
-					setTimeout(function () {
+					if (replayStorage[iteration].ActionData == 0) {
 						mPlay("gameover_snd");
-						document.getElementById("fullcard").style.display = "none";
-						document.getElementById("bonuspntdisplay").style.display = "none";
 						document.getElementById("gameover").style.display = "block";
 						document.getElementById("startgamebtn").style.display = "block";
 						gameReset();
-					}, 5000)
-				}
-				break;
-
-			case "showScreen":
-				nextIterationTimeout = 3000;
-				switch (replayStorage[iteration].ActionData) {
-					case "devil":
-						document.getElementById("devil").style.display = "block";
-						mPlay("dd_snd");
-						break;
-
-					case "csmb":
-						nextIterationTimeout = 1000;
-						document.getElementById("csmb").style.display = "block";
-						mPlay("csmb_snd");
-						break;
-
-					case "finalspins4":
-						document.getElementById("finalspins4").style.display = "block";
-						break;
-
-					case "finalspins3":
-						document.getElementById("finalspins3").style.display = "block";
-						break;
-
-					case "finalspins2":
-						document.getElementById("finalspins2").style.display = "block";
-						break;
-				
-					case "finalspins1":
-						document.getElementById("finalspins1").style.display = "block";
-						break;
-
-					default:
-						mPlay("invalid_snd");
-						console.warn("Invalid ActionData for showScreen found: " + replayStorage[iteration].ActionData);
-						break;
-				}
-				break;
-
-			case "hideScreen":
-				nextIterationTimeout = 1;
-				switch (replayStorage[iteration].ActionData) {
-					case "devil":
-						document.getElementById("devil").style.display = "none";
-						break;
-
-					case "csmb":
-						document.getElementById("csmb").style.display = "none";
-						break;
-
-					case "finalspins4":
-						document.getElementById("finalspins4").style.display = "none";
-						break;
-	
-					case "finalspins3":
-						document.getElementById("finalspins3").style.display = "none";
-						break;
-	
-					case "finalspins2":
-						document.getElementById("finalspins2").style.display = "none";
-						break;
-					
-					case "finalspins1":
-						document.getElementById("finalspins1").style.display = "none";
-						break;
-	
-					default:
-						mPlay("invalid_snd");
-						console.warn("Invalid ActionData for hideScreen found: " + replayStorage[iteration].ActionData);
-						break;
-				}
-				break;
-
-			case "slingo":
-				nextIterationTimeout = 1;
-				var slingoTriggered = 0;
-				switch (replayStorage[iteration].ActionData[0]) {
-					case "horizontal":
-						slingoTriggered = replayStorage[iteration].ActionData[1]+6;
-						break;
-					
-					case "vertical":
-						slingoTriggered = replayStorage[iteration].ActionData[1]+1;
-						break;
-
-					case "diagonal":
-						slingoTriggered = replayStorage[iteration].ActionData[1]+11;
-						break;
-
-					default:
-						console.warn("Invalid ActionData for slingo found: " + replayStorage[iteration].ActionData);
-						break;
-				}
-				if (slingoTriggered > 0) {
-					nextIterationTimeout = 1000;
-					if (
-						!step &&
-						iteration < replayStorage.length - 1 &&
-						replayStorage[iteration + 1].ActionType == "slingo"
-					) {
-						nextIterationTimeout = 1;
+					} else {
+						document.getElementById("fullcard").style.display = "block";
+						document.getElementById("bonuspntdisplay").style.display = "block";
+						document.getElementById("bonuspntdisplay").innerHTML = bonus;
+						mPlay("fc_snd");
+						setTimeout(function () {
+							mPlay("gameover_snd");
+							document.getElementById("fullcard").style.display = "none";
+							document.getElementById("bonuspntdisplay").style.display = "none";
+							document.getElementById("gameover").style.display = "block";
+							document.getElementById("startgamebtn").style.display = "block";
+							gameReset();
+						}, 5000)
 					}
-					mPlay("slingo_snd");
-					document.getElementById("slingo" + slingoTriggered).style.display = "block";
-					setTimeout(function() {
-						document.getElementById("slingo" + slingoTriggered).style.display = "none";
-					}, 1000);
-				}
-				break;
+					break;
 
-			default:
-				mPlay("invalid_snd");
-				console.warn("Unknown ActionType found: " + replayStorage[iteration].ActionType);
-				break;
-		}
+				case "showScreen":
+					nextIterationTimeout = 3000;
+					switch (replayStorage[iteration].ActionData) {
+						case "devil":
+							document.getElementById("devil").style.display = "block";
+							mPlay("dd_snd");
+							break;
+
+						case "csmb":
+							nextIterationTimeout = 1000;
+							document.getElementById("csmb").style.display = "block";
+							mPlay("csmb_snd");
+							break;
+
+						case "finalspins4":
+							document.getElementById("finalspins4").style.display = "block";
+							break;
+
+						case "finalspins3":
+							document.getElementById("finalspins3").style.display = "block";
+							break;
+
+						case "finalspins2":
+							document.getElementById("finalspins2").style.display = "block";
+							break;
+					
+						case "finalspins1":
+							document.getElementById("finalspins1").style.display = "block";
+							break;
+
+						default:
+							mPlay("invalid_snd");
+							console.warn("Invalid ActionData for showScreen found: " + replayStorage[iteration].ActionData);
+							break;
+					}
+					break;
+
+				case "hideScreen":
+					nextIterationTimeout = 1;
+					switch (replayStorage[iteration].ActionData) {
+						case "devil":
+							document.getElementById("devil").style.display = "none";
+							break;
+
+						case "csmb":
+							document.getElementById("csmb").style.display = "none";
+							break;
+
+						case "finalspins4":
+							document.getElementById("finalspins4").style.display = "none";
+							break;
+		
+						case "finalspins3":
+							document.getElementById("finalspins3").style.display = "none";
+							break;
+		
+						case "finalspins2":
+							document.getElementById("finalspins2").style.display = "none";
+							break;
+						
+						case "finalspins1":
+							document.getElementById("finalspins1").style.display = "none";
+							break;
+		
+						default:
+							mPlay("invalid_snd");
+							console.warn("Invalid ActionData for hideScreen found: " + replayStorage[iteration].ActionData);
+							break;
+					}
+					break;
+
+				case "slingo":
+					nextIterationTimeout = 1;
+					var slingoTriggered = 0;
+					switch (replayStorage[iteration].ActionData[0]) {
+						case "horizontal":
+							slingoTriggered = replayStorage[iteration].ActionData[1]+6;
+							break;
+						
+						case "vertical":
+							slingoTriggered = replayStorage[iteration].ActionData[1]+1;
+							break;
+
+						case "diagonal":
+							slingoTriggered = replayStorage[iteration].ActionData[1]+11;
+							break;
+
+						default:
+							console.warn("Invalid ActionData for slingo found: " + replayStorage[iteration].ActionData);
+							break;
+					}
+					if (slingoTriggered > 0) {
+						nextIterationTimeout = 1000;
+						if (
+							!step &&
+							iteration < replayStorage.length - 1 &&
+							replayStorage[iteration + 1].ActionType == "slingo"
+						) {
+							nextIterationTimeout = 1;
+						}
+						mPlay("slingo_snd");
+						document.getElementById("slingo" + slingoTriggered).style.display = "block";
+						setTimeout(function() {
+							document.getElementById("slingo" + slingoTriggered).style.display = "none";
+						}, 1000);
+					}
+					break;
+					
+				default:
+					mPlay("invalid_snd");
+					console.warn("Unknown ActionType found: " + replayStorage[iteration].ActionType);
+					break;
+			}
+		} catch (ex) {console.log(ex);}
 	}
     if (ReplayFastForward && nextIterationTimeout > 50) {
 		nextIterationTimeout = 50;
