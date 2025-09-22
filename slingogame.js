@@ -750,6 +750,7 @@ function replayGameIteration(replayStorage, iteration, step) {
 					for (var i = 0; i < 5; i++) {
 						for (var j = 0; j < 5; j++) {
 							document.getElementById(boardIDs[i][j]).innerHTML = boardArray[i][j];
+							document.getElementById(boardIDs[i][j]).style.backgroundImage = "";
 							flashCardSlot(i, j, 100);
 						}
 					}
@@ -1142,3 +1143,4 @@ function ToggleReplaySpeed() {
 		mPlay("invalid_snd");
 	}
 }
+
